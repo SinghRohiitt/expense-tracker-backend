@@ -29,6 +29,7 @@ export const addExpense = async (req, res) => {
       data: expense,
     });
   } catch (error) {
+    console.error("ADD EXPENSE ERROR 👉", error.message);
     return res.status(400).json({
       success: false,
       message: "Unable to add expense. Please check input data.",
@@ -79,12 +80,12 @@ export const getUserMonthlySummary = async (req, res) => {
     const monthStart = new Date(
       currentDate.getFullYear(),
       currentDate.getMonth(),
-      1
+      1,
     );
     const monthEnd = new Date(
       currentDate.getFullYear(),
       currentDate.getMonth() + 1,
-      1
+      1,
     );
 
     const monthlyStats = await Expense.aggregate([
