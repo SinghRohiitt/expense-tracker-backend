@@ -32,18 +32,19 @@ src/
 ├── app.js
 └── server.js
 
-
 ## ⚙️ Setup Instructions
 
 ### 1️⃣ Clone the repository
-```bash
+
+````bash
 git clone https://github.com/SinghRohiitt/expense-tracker-backend.git
 cd expense-tracker-backend
 
 npm install
 
 PORT=5000
-MONGO_URI=mongodb+srv://rohitsingh080403_db_user:XEs8jkTn3hoWFei5@cluster0.hdvvdbr.mongodb.net/?appName=Cluster0
+
+MONGO_URI=mongodb+srv://expenseuser:expense123@cluster0.biclrze.mongodb.net/?appName=Cluster0
 
 npm run dev
 
@@ -141,3 +142,4 @@ This project focuses on core backend fundamentals such as schema design, validat
 ```bash
 git add README.md
 git commit -m "docs: add README with setup instructions and API documentation"
+````
