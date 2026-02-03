@@ -1,14 +1,17 @@
-import Expense from '../models/Expense.js';
+import mongoose from "mongoose";
+import Expense from "../models/Expense.js";
+import User from "../models/User.js";
 
+// Add a new expense for a user
 export const addExpense = async (req, res) => {
   try {
     const { userId, title, amount, category, date } = req.body;
 
-    // Basic request validation (professional but minimal)
+    // Basic input validation to avoid unnecessary DB calls
     if (!userId || !title || !amount || !category) {
       return res.status(400).json({
         success: false,
-        message: 'Required fields are missing'
+        message: "Required fields are missing",
       });
     }
 
@@ -17,22 +20,23 @@ export const addExpense = async (req, res) => {
       title,
       amount,
       category,
-      date
+      date,
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
-      data: expense
+      message: "Expense added successfully",
+      data: expense,
     });
   } catch (error) {
-    res.status(400).json({
+    return res.status(400).json({
       success: false,
-      message: error.message
+      message: "Unable to add expense. Please check input data.",
     });
   }
 };
 
-
+// Get all expenses for a specific user
 export const getUserExpenses = async (req, res) => {
   try {
     const { id } = req.params;
@@ -43,35 +47,34 @@ export const getUserExpenses = async (req, res) => {
       .skip((page - 1) * limit)
       .limit(Number(limit));
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
+      message: "User expenses fetched successfully",
       count: expenses.length,
-      data: expenses
+      data: expenses,
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      message: error.message
+      message: "Failed to fetch user expenses",
     });
   }
 };
 
-
-
+// Get monthly expense summary for a user
 export const getUserMonthlySummary = async (req, res) => {
   try {
     const { id: userId } = req.params;
 
-    // Ensure user exists before doing heavy operations
+    // User existence check before running aggregation
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: "User not found",
       });
     }
 
-    // Current month date boundaries
     const currentDate = new Date();
     const monthStart = new Date(
       currentDate.getFullYear(),
@@ -84,40 +87,39 @@ export const getUserMonthlySummary = async (req, res) => {
       1
     );
 
-    // Aggregation keeps calculation at DB level (efficient)
     const monthlyStats = await Expense.aggregate([
       {
         $match: {
           user: new mongoose.Types.ObjectId(userId),
-          date: { $gte: monthStart, $lt: monthEnd }
-        }
+          date: { $gte: monthStart, $lt: monthEnd },
+        },
       },
       {
         $group: {
           _id: null,
-          totalSpent: { $sum: '$amount' },
-          expenseCount: { $sum: 1 }
-        }
-      }
+          totalSpent: { $sum: "$amount" },
+          expenseCount: { $sum: 1 },
+        },
+      },
     ]);
 
     const totalSpent = monthlyStats[0]?.totalSpent || 0;
     const expenseCount = monthlyStats[0]?.expenseCount || 0;
-
     const remainingBudget = user.monthlyBudget - totalSpent;
 
     return res.status(200).json({
       success: true,
+      message: "Monthly expense summary fetched successfully",
       data: {
         totalExpenses: totalSpent,
         remainingBudget,
-        expenseCount
-      }
+        expenseCount,
+      },
     });
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.message
+      message: "Failed to generate monthly expense summary",
     });
   }
 };

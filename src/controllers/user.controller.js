@@ -1,13 +1,15 @@
-import User from '../models/User.js';
+import User from "../models/User.js";
 
+// Create a new user
 export const createUser = async (req, res) => {
   try {
     const { name, email, monthlyBudget } = req.body;
 
+    // Basic validation to ensure required fields are present
     if (!name || !email || !monthlyBudget) {
       return res.status(400).json({
         success: false,
-        message: 'All fields are required'
+        message: "Name, email and monthly budget are required",
       });
     }
 
@@ -15,28 +17,30 @@ export const createUser = async (req, res) => {
     if (existingUser) {
       return res.status(409).json({
         success: false,
-        message: 'User with this email already exists'
+        message: "User with this email already exists",
       });
     }
 
     const user = await User.create({
       name,
       email,
-      monthlyBudget
+      monthlyBudget,
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
-      data: user
+      message: "User created successfully",
+      data: user,
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      message: error.message
+      message: "Failed to create user",
     });
   }
 };
 
+//  Get user details by ID
 export const getUserById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -46,18 +50,19 @@ export const getUserById = async (req, res) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: "User not found",
       });
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
-      data: user
+      message: "User details fetched successfully",
+      data: user,
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      message: error.message
+      message: "Failed to fetch user details",
     });
   }
 };
